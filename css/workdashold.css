@@ -1,0 +1,212 @@
+html{
+    min-height:100%;
+    position:relative
+}
+
+body
+{
+    height: 100%;
+}
+
+.container
+{
+    min-height: 99%;
+    min-width: 99%;
+    height: 100%;
+}
+
+.container>.row
+{
+    height: 100%;
+}
+
+.row>.tile
+{
+    border-style: solid;
+    border-width: 1px;
+    border-color: #000000;
+    background-color: #ffffff;
+}
+
+.row>.tile>.navbar
+{
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-color: #000000;
+    background-color: #ffffff;
+    max-height: 10px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-bottom: 0;
+}
+
+.row>.tile:first-child
+{
+    height: 80%;
+    padding: 0;
+
+}
+
+.row>.tile:not(:first-child)
+{
+    margin-left: 0.5%;
+    height: 80%;
+    padding: 0;
+    float: right;
+}
+
+
+.planning-pane
+{
+    min-height: 700px;
+    overflow: scroll;
+    white-space: nowrap;
+    position: relative;
+}
+
+
+
+.add-task-modal
+{
+    visibility: hidden;
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    text-align:center;
+    z-index: 1000;
+    background-color: hsla(0, 100%, 0%, 0.8);
+}
+
+
+.task-holder
+{
+    background-color: #ffffff ;
+
+    z-index: -2;
+
+    height: auto;
+
+    border-bottom-right-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-top-left-radius: 18px;
+}
+
+.task-holder-handlebar
+{
+    background-color: #ffffff;
+
+    border-style: solid;
+    border-width: 1px;
+    border-color: #000000;
+    border-bottom-right-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-top-left-radius: 100px;
+
+    width: 250px;
+}
+
+.task-details-button
+{
+    height: 34px;
+    width: 34px;
+    padding: 0;
+    box-shadow: none;
+
+    background-color: #ffffff;
+
+    border-bottom-right-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-top-left-radius: 100px;
+}
+
+.task-control-button
+{
+    height: 34px;
+    width: 34px;
+
+    padding: 0;
+    box-shadow: none;
+
+    background-color: #ffffff;
+
+    border-bottom-right-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-top-left-radius: 100px;
+}
+
+.task-handle
+{
+    margin-left: 2%;
+    margin-right: 2%;
+
+    width: calc(96% - 68px);
+    height: 100%;
+    padding: 0;
+
+    border-style: none;
+
+    box-shadow: none;
+}
+
+
+.task-handle-input-box
+{
+    margin-left: 2%;
+    margin-right: 2%;
+
+    width: calc(96% - 68px);
+    height: 100%;
+    padding: 0;
+
+    border-style: none;
+
+    box-shadow: none;
+}
+
+.task-holder-details-pane
+{
+
+    height: 250px;
+    width: 250px;
+    min-height: 150px;
+
+    z-index: -1;
+    background-color: #ffffff;
+
+    border-style: solid;
+    border-width: 1px;
+
+    border-top-right-radius: 18px;
+    border-top-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    border-bottom-left-radius: 18px;
+}
+
+.task-control-btn
+{
+
+    border-top-right-radius: 18px;
+    border-top-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    border-bottom-left-radius: 18px;
+}
+.task-control-menu
+{
+
+   height: 0;
+   width: 0;
+}
+
+.highlight
+{
+    background-color: #217dbb;
+}
+
+
+

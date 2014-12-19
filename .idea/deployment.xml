@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="fletchercodeworks" uploadOnCheckin="5c6987c8-1a8c-4dcf-85f8-d3f84ab241e0">
+    <serverData>
+      <paths name="fletchercodeworks">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/public_html" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myUploadOnCheckinName" value="fletchercodeworks" />
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
