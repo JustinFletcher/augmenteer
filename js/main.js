@@ -1,6 +1,21 @@
 // This whole thing needs refactored to make task objects, which are implemented with taskholders and then "drawn" based on thier properties.
 /*global $:false*/
 
+//TODO: @master Implement fletchercodeworks.com landing page.
+
+//TODO: @html Change jQuery source locations to remote.
+
+//TODO: Modularize independent function sets.
+//TODO: Replace all use of jQueryUI Positioning. Remove jQueryUI, if possible.
+//TODO: Implement droppable to add new charted task.
+//TODO: Implement "projects" to separate unlinked relation trees.
+//TODO: Implement drag-revert feature on movable field.
+
+//TODO: <dogfood> Implement login feature.
+////TODO: <dogfood> Implement data persistence.
+//TODO  <dogfood> Implement JSON storage of task data.
+////TODO: <dogfood> Implement task tree construction from JSON.
+
 var displayScreen = $("#displayScreen");
 
 makeGoldenHeader($('#goldenHeader'));
@@ -18,11 +33,29 @@ $('html, body').css({
 $(window).trigger('resize');
 
 
-$('#addTaskButton').on('click', addNewTask);
+//$('#addTaskButton').on('click', addNewTask);
 $('#addInboxTaskButton').on('click', addNewInboxTask);
 $('#clearTasksButton').on('click', clearAllTasks);
 
-$('#taskField').draggable();
+var $taskField = $('#taskField');
+$taskField.draggable();
+$taskField.droppable({
+        accept: '.inbox-task-holder',
+        activeClass: '',
+        hoverClass: '',
+        drop: function( event, ui ) {
+            var $taskField = $(this);
+            var $droppedTaskHolder = $(event.toElement).closest('.inbox-task-holder');
+            console.log($droppedTaskHolder);
+            // Get data out of $droppedTask
+            var droppedTaskData = $droppedTaskHolder.data('task-data');
+            // Remove $droppedTask from taskInbox
+            $droppedTaskHolder.remove();
+            // Create a new task in $taskField with data from $droppedTask
+            // addNewProject()
+            addNewTask(droppedTaskData);
+        }
+    });
 $('#taskInbox').sortable();
 
 
@@ -69,8 +102,8 @@ function addNewInboxTask() {
     $taskInbox.append(newInboxTaskHolder);
 }
 
-function addNewTask() {
-    var newTaskHolder = createTaskHolder(Math.round(Math.random() * 100000));
+function addNewTask(taskData) {
+    var newTaskHolder = createTaskHolder(taskData.taskTitle);
     $('#taskField').append(newTaskHolder);
 
     newTaskHolder.trigger('append');
@@ -102,7 +135,6 @@ function updateTaskHolderSize() {
         taskHolder.width(taskHolder.children('.task-holder-details-pane').outerWidth() + taskHolderWidthPadding);
     }
 
-
     taskHolder.children('.task-holder-handlebar').position(
         {
             my: "top",
@@ -111,7 +143,6 @@ function updateTaskHolderSize() {
             collision: "none"
         }
     );
-
 
     taskHolder.children('.task-holder-details-pane').position(
         {
@@ -139,39 +170,41 @@ function createInboxTaskHolder(newTaskIdStr) {
     // This function should take a JSON object describing a task, and build a taskholder from it.
 
     // First, Build the "handlebar" which contains the control buttons, and text input field.
-    var detailsButton = $('<div type="button" class="task-details-button btn btn-default"></div>'),
-        controlButton = $('<div type="button" class="task-control-button btn btn-default"></div>'),
-        taskHandleInput = $('<input  type = "text" class="task-handle-input-box" placeholder=' + newTaskIdStr + '>'),
-        taskHolderHandlebar = $('<div class="task-holder-handlebar"></div>');
+    var $detailsButton = $('<div type="button" class="task-details-button btn btn-default"></div>'),
+        $controlButton = $('<div type="button" class="task-control-button btn btn-default"></div>'),
+        $taskHandleInput = $('<input  type = "text" class="task-handle-input-box" placeholder=' + newTaskIdStr + '>'),
+        $taskHolderHandlebar = $('<div class="task-holder-handlebar"></div>');
 
     // Now, setup the behaviour functions of the task holder.
-    detailsButton.on('click', toggleTaskDetailsVisible);
-    detailsButton.on('click', updateTaskHolderSize);
+    $detailsButton.on('click', toggleTaskDetailsVisible);
+    $detailsButton.on('click', updateTaskHolderSize);
 
-    taskHolderHandlebar.append(detailsButton, taskHandleInput, controlButton);
+    $taskHolderHandlebar.append($detailsButton, $taskHandleInput, $controlButton);
 
     // Next, create the details pane content.
-    var taskHolderDetailsPane = $('<div class="task-holder-details-pane"></div>');
-    taskHolderDetailsPane.css('display', 'none');
+    var $taskHolderDetailsPane = $('<div class="task-holder-details-pane"></div>');
+    $taskHolderDetailsPane.css('display', 'none');
 
 
     // Finally, build the task holder div, by combining all of the sub elements
-    var taskHolder = $('<div class="task-holder" id= ' + newTaskIdStr + '></div>');
-    taskHolder.append(taskHolderHandlebar, taskHolderDetailsPane);
+    var $taskHolder = $('<div class="inbox-task-holder" id= ' + newTaskIdStr + '></div>');
+    $taskHolder.append($taskHolderHandlebar, $taskHolderDetailsPane);
 
     // Apply functions to the task holder.
-    taskHolder.on('append', updateTaskHolderSize);
-    taskHolder.on('append', updateMenuPosition);
-    //taskHolder.on('click', showData);
-    taskHolder.on('click', toggleTaskHolderActive);
-    taskHolder.on('update-menu-position', updateMenuPosition);
+    $taskHolder.on('append', updateTaskHolderSize);
+    $taskHolder.on('append', updateMenuPosition);
+    $taskHolder.on('click', toggleTaskHolderActive);
+    $taskHolder.on('update-menu-position', updateMenuPosition);
 
+    $taskHolder.children().disableSelection();
+    $taskHolder.disableSelection();
 
+    var taskData = {
+        taskTitle: newTaskIdStr
+    };
+    $taskHolder.data('task-data', taskData);
 
-    taskHolder.children().disableSelection();
-    taskHolder.disableSelection();
-
-    return taskHolder;
+    return $taskHolder;
 }
 
 function createTaskHolder(newTaskIdStr) {

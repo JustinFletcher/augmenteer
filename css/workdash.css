@@ -129,6 +129,10 @@ body
     float: left;
 }
 
+.task-inbox>.header{
+
+}
+
 .task-window
 {
     border-style: solid;
@@ -180,12 +184,7 @@ body
     width: 250px;
 }
 
-.task-inbox>.header{
-    border-style: solid;
-    border-width: 1px;
-    border-color: #000000;
 
-}
 
 .task-inbox>.header>.header-text{
     display: inline-block;
