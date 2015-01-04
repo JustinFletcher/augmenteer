@@ -3,37 +3,31 @@
  */
 
 
+
+// There could be constructed a search algorithm, which goes depth-first one way, until it can go another, then flips
+// back until it reaches and end. Control could then flow back through the tree. This algorithm would visit each node.
+function recursiveOneWayDepthFirstSearch($rootTask) {
+
+}
+
 function recursiveUpdateAntecedentsPositions($rootTask) {
+    // This function implements a recursive depth-first search starting at a given node and searching through the
+    // antecedent space. On each node, an evaluation is performed to determine id the current node should be above or
+    // below the next-lowest-recursive-depth root node. Based on that evaluation, an operation is performed, or not.
 
+    // First, generate all antecedents of the root task
     var rootTaskAntecedentIdArray = $rootTask.antecedents();
-
     rootTaskAntecedentIdArray.forEach(
-        function (arrayElement) {
-            // Determine exactly at which antecedent task we are looking.
-            var rootTaskAntecedentId = arrayElement;
-            var $rootTaskAntecedent = $('#' + rootTaskAntecedentId);
+        function ($rootTaskAntecedent) {
 
-            // Pull the list of subsequent tasks of this iterations antecedent of the appendee task. This list will
-            // always include the appendee task.
-            var rootTaskSiblingIdArray = $rootTaskAntecedent.subsequents();
+            var rootTaskSiblingArray = $rootTaskAntecedent.subsequents();
 
-            // Determine the list-index of the appendee task relative to this antecedent.
-            var rootTaskId = $rootTask.attr('id');
-            var antecedentSpecificRootTaskIndex = rootTaskSiblingIdArray.indexOf(rootTaskId);
+            rootTaskSiblingArray.forEach(
+                function ($rootTaskSibling) {
 
-            rootTaskSiblingIdArray.forEach(
-                function (arrayElement, elementIndex) {
-                    // This algorithm need to be refactored to work based on position in space, rather than order in
-                    // array, so that the array order is decoupled from the position completely.
-                    var rootTaskSiblingId = arrayElement;
-                    var rootTaskSiblingIndex = elementIndex;
-
-                    // If this number is positive the appendee is above this iterations sibling, if the number is
-                    // negative it's below, if it's zero it IS the appendee.
-                    var appendeeToSiblingDistance =  antecedentSpecificRootTaskIndex - rootTaskSiblingIndex;
-
-                    if (appendeeToSiblingDistance < 0) {
-                        recursiveAdjustDependentHeight(rootTaskSiblingId, 100, []);
+                    // If sibling is below root, lower that sibling by 100 pixels
+                    if ($rootTask.position().top < $rootTaskSibling.position().top) {
+                        recursiveOffsetSubsequentPosition($rootTaskSibling, 100, 0, []);
                     }
                 }
             );
@@ -43,50 +37,53 @@ function recursiveUpdateAntecedentsPositions($rootTask) {
 }
 
 function updateTaskTreePositions($appendeeTask) {
+    // this function could evolve into a triggerable which would dispatch all position update for the tree...
+    // For now, this function is called to update the position of all antecedents of some appendee, if needed.
     ($appendeeTask.subsequents('count') > 1) ? recursiveUpdateAntecedentsPositions($appendeeTask) : null;
+
 }
 
-function recursiveAdjustDependentHeight(rootTaskId, heightAdjustment, adjustCompleteArray) {
+function recursiveOffsetSubsequentPosition($rootTask, topOffset, leftOffset, adjustCompleteArray) {
 
-    var $rootTask = $("#" + rootTaskId);
-
+    //var $rootTask = $("#" + rootTaskId);
+    var rootTaskId =$rootTask.attr('id');
     if (adjustCompleteArray.indexOf(rootTaskId) === -1) {
-        offset$ElementPosition($rootTask, heightAdjustment, 0);
+        offset$ElementPosition($rootTask, topOffset, leftOffset);
         adjustCompleteArray.push(rootTaskId);
     }
 
-    var rootTaskDependentArray = $rootTask.subsequents();
+    var rootTaskSubsequentsArray = $rootTask.subsequents();
 
-    rootTaskDependentArray.forEach(
-        function (arrayElement) {
-            var dependentTaskId = arrayElement; // Can eliminate for speed if needed.
-            recursiveAdjustDependentHeight(dependentTaskId, heightAdjustment, adjustCompleteArray);
+    rootTaskSubsequentsArray.forEach(
+        function ($subsequentTask) {
+            // Reminder: subsequentTaskId, in this case, is just the contents of this iterations arrayElement.
+            recursiveOffsetSubsequentPosition($subsequentTask, topOffset, leftOffset, adjustCompleteArray);
         }
     );
 }
 
-function getSubsequentsSortedByAltitude(rootTask) {
-    var rootTaskId = rootTask.attr('id');
+function getSubsequentsSortedByAltitude($rootTask) {
+    //var rootTaskId = $rootTask.attr('id');
 
-    var taskIdSortedByAltitudeArray = recursiveSortSubsequentsByAltitude(rootTaskId, []);
+    var taskIdSortedByAltitudeArray = recursiveSortSubsequentsByAltitude($rootTask, []);
 
     taskIdSortedByAltitudeArray.sort(function (a, b) {return b[1] - a[1]; });
 
     return taskIdSortedByAltitudeArray;
 
-    function recursiveSortSubsequentsByAltitude(rootTaskId, taskIdSortedByAltitudeArray) {
+    function recursiveSortSubsequentsByAltitude($rootTask, taskIdSortedByAltitudeArray) {
 
-        var $rootTask = $("#" + rootTaskId);
+        //var $rootTask = $("#" + rootTaskId);
 
         var rootTop = $rootTask.timeInvariantPositionTop();
-        taskIdSortedByAltitudeArray.push([rootTaskId, rootTop]);
+        taskIdSortedByAltitudeArray.push([$rootTask.attr('id'), rootTop]);
 
         var rootTaskSubsequentsArray = $rootTask.subsequents();
 
         rootTaskSubsequentsArray.forEach(
-            function (arrayElement) {
-                var subsequentsTaskId = arrayElement;
-                taskIdSortedByAltitudeArray = recursiveSortSubsequentsByAltitude(subsequentsTaskId, taskIdSortedByAltitudeArray);
+            function ($subsequentsTask) {
+                //var subsequentsTaskId = arrayElement;
+                taskIdSortedByAltitudeArray = recursiveSortSubsequentsByAltitude($subsequentsTask, taskIdSortedByAltitudeArray);
             }
         );
 
@@ -134,8 +131,8 @@ function recursiveVerticallyCenter$ElementOnSubsequents($rootTask) {
     var rootTaskAntecedentsArray = $rootTask.antecedents();
 
     rootTaskAntecedentsArray.forEach(
-        function(arrayElement){
-            var $antecedentTask = $('#' + arrayElement); // Can eliminate for speed if needed.
+        function($antecedentTask){
+            //var $antecedentTask = $('#' + arrayElement); // Can eliminate for speed if needed.
             recursiveVerticallyCenter$ElementOnSubsequents( $antecedentTask ) ;
         }
     );
@@ -148,21 +145,21 @@ function verticallyCenter$ElementOnSubsequents($elementToCenter) {
     var lowestSubsequent = firstSubsequent.timeInvariantPositionTop();
 
     // Compute the highest and lowest subsequents
-    $elementToCenter.subsequents().forEach(function(arrayElement)
-    {
+    $elementToCenter.subsequents().forEach(
+        function($thisSubsequent) {
 
-        var thisSubsequentTop = $('#'+arrayElement).timeInvariantPositionTop();
+                var thisSubsequentTop = $thisSubsequent.timeInvariantPositionTop();
 
-        if(thisSubsequentTop < highestSubsequent)
-        {
-            highestSubsequent = thisSubsequentTop;
-        }
-        else if(thisSubsequentTop > lowestSubsequent)
-        {
-            lowestSubsequent = thisSubsequentTop;
-        }
+                if(thisSubsequentTop < highestSubsequent)
+                {
+                    highestSubsequent = thisSubsequentTop;
+                }
+                else if(thisSubsequentTop > lowestSubsequent)
+                {
+                    lowestSubsequent = thisSubsequentTop;
+                }
 
-    });
+            });
 
     var centereeTop = highestSubsequent+((lowestSubsequent-highestSubsequent)/2);
     //console.log("rangeTop: " + highestSubsequent +" | rangeBottom: "+lowestSubsequent+" | centereeTop: "+centereeTop);

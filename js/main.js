@@ -44,14 +44,13 @@ $projectField.droppable({
 
             // Find the task that was dropped, store it in a local variable.
             var $droppedTaskHolder = $(event.toElement).closest('.inbox-task-holder');
-            console.log($droppedTaskHolder);
+
 
             // Get data out of $droppedTask
             var droppedTaskData = $droppedTaskHolder.data('task-data');
 
             // Remove $droppedTask from taskInbox
             $droppedTaskHolder.remove();
-
 
 
             // There should be an entire handling subroutine here, which decides where the task is to go.
