@@ -2,7 +2,10 @@
  * Created by Justin Fletcher on 12/27/2014.
  */
 
+/*global $:false*/
+
 function createConnector($appendeeTask, $appendedTask) {
+    // This function builds a connector object running from the $connectorElement, to the $connecteeElement
 
     var idStr = 'connector-' + $appendeeTask.attr('id') + '-' + $appendedTask.attr('id');
 
@@ -86,7 +89,7 @@ function createConnectorCanvas(idStr, connectorProps) {
     var $canvas = $('<canvas class = "connector" id="' + idStr + '" ' + styleStr + '></canvas>');
 
     $canvas.connectorProperties(connectorProps);
-    return $canvas;
+    return $canvas
 }
 
 function updateConnectors() {
@@ -99,7 +102,6 @@ function updateConnectors() {
     $thisTaskConnectors.forEach(function (arrayElement) {
         var $thisIterConnector = $("#" + arrayElement);
         var connectedTasks = $thisIterConnector.connectees();
-
         var connectorProps = calculateConnectorProperties($('#' + connectedTasks[0]), $('#' + connectedTasks[1]));
         $thisIterConnector.css('left', connectorProps.left);
         $thisIterConnector.css('top', connectorProps.top);
@@ -112,7 +114,6 @@ function updateConnectors() {
 
 
 jQuery.fn.extend({
-    // jQuery extensions for mangaging connections between elements
     connectors: function()
     {
         if (arguments.length == 0)
@@ -151,7 +152,7 @@ jQuery.fn.extend({
         }
         else if (arguments[0] == 'remove')
         {
-            var removeTaskIdStr = arguments[0];
+            var removeTaskIdStr = arguments[1];
             var connectorsArray = this.data('connectors');
             connectorsArray.splice(connectorsArray.indexOf(removeTaskIdStr),1);
             this.data('connectors', connectorsArray);
@@ -165,19 +166,19 @@ jQuery.fn.extend({
 
     connectees: function()
     {
-        if (arguments.length == 0)
+        if (arguments.length === 0)
         {
             // return this.data('antecedents');
             // if (typeof rootTaskAntecedentsArray  === 'undefined') {rootTaskAntecedentsArray  = []; }
             return (typeof this.data('connectees') === 'undefined') ? [] : this.data('connectees');
         }
-        if (arguments.length == 1)
+        if (arguments.length === 1)
         {
-            if (arguments[0] == 'count')
+            if (arguments[0] === 'count')
             {
                 return this.data('connectees').length;
             }
-            if (arguments[0] == 'last')
+            if (arguments[0] === 'last')
             {
                 return $('#'+(this.data('connectees')[this.data('connectees').length-1]))
             }
@@ -186,7 +187,7 @@ jQuery.fn.extend({
                 return $('#'+(this.data('connectees')[arguments[0]]));
             }
         }
-        else if (arguments[0] == 'add')
+        else if (arguments[0] === 'add')
         {
             // iterate foreach additional argument and set it. Do the same for remove.
             var connecteeIdStr = arguments[1].attr('id');
@@ -199,19 +200,19 @@ jQuery.fn.extend({
             }
             this.data('connectees', connecteesArray);
         }
-        else if (arguments[0] == 'remove')
+        else if (arguments[0] === 'remove')
         {
-            var removeTaskIdStr = arguments[0];
+            var removeTaskIdStr = arguments[1];
             var connecteesArray = this.data('connectees');
-            connecteesArray.splice(connecteesArray.indexOf(removeTaskIdStr),1);
+            connecteesArray.splice(connecteesArray.indexOf(removeTaskIdStr), 1);
             this.data('connectees', connecteesArray);
         }
-        else if (arguments[0] == 'lowest')
+        else if (arguments[0] === 'lowest')
         {
             //Get the lowest
         }
-
     },
+
     connectorProperties: function() {
         if (arguments.length == 0)
         {
@@ -276,6 +277,69 @@ jQuery.fn.extend({
 
         }
         //connectorContext.closePath();
-    }
+    },
+
+     connectTo: function($connectedElement) {
+         var $connecteeElement = this;
+         console.log($connecteeElement);
+         // This function builds a connector object running from the $connectorElement, to the $connecteeElement
+
+         var idStr = 'connector-' + $connecteeElement.attr('id') + '-' + $connectedElement.attr('id');
+
+         var connectorProps = calculateConnectorProperties($connecteeElement, $connectedElement);
+
+         var $connector = createConnectorCanvas(idStr, connectorProps);
+
+         $connector.drawConnectorPath();
+
+         $connector.connectees('add', $connecteeElement);
+         $connector.connectees('add', $connectedElement);
+
+         $connecteeElement.connectors('add', $connector);
+         $connectedElement.connectors('add', $connector);
+
+         $connecteeElement.on('task-moved', updateConnectors);
+         $connectedElement.on('task-moved', updateConnectors);
+
+         $connecteeElement.parent().append($connector);
+
+         $connecteeElement.trigger('task-moved');
+         $connectedElement.trigger('task-moved');
+     },
+
+     breakConnection: function($breakeeElement) {
+         var $breakerElement = this;
+
+         // First, find the connector ID connecting these two elements.
+         var breakeeConnectorArray = $breakeeElement.connectors();
+         var breakerConnectorArray =  $breakerElement.connectors();
+
+         //TODO: Reduce complexity of this search and assignment
+         var $connectorToBreak = null;
+         breakeeConnectorArray.forEach(
+             function (breakeeConnector) {
+                 breakerConnectorArray.forEach(
+                     function (breakerConnector) {
+                        if (breakeeConnector === breakerConnector) {
+                            $connectorToBreak = breakeeConnector;
+                        }
+                     }
+                 );
+             }
+         );
+         // Temporary shiv to compensate for stringy library
+         //TODO: jQueryify this library.
+         $connectorToBreak =  $('#' + $connectorToBreak);
+
+         $connectorToBreak
+         // Then remove the connection data for each element.
+         $breakerElement.connectors('remove', $connectorToBreak.attr('id'));
+         $breakeeElement.connectors('remove', $connectorToBreak.attr('id'));
+
+         // Last, remove the connector
+         $connectorToBreak.remove();
+
+     }
+
 
 });

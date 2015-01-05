@@ -3,66 +3,37 @@
  * This library implements generic dependency trees by extending jQuery using the .data() interface.
  */
 
+/*global $:false*/
+
 jQuery.fn.extend({
     // jQuery extensions for handling dependency trees.
-    antecedents: function()
-    {
-        if (arguments.length == 0)
-        {
+    antecedents: function () {
+        if (arguments.length === 0) {
             return (typeof this.data('antecedents') === 'undefined') ? [] : this.data('antecedents');
         }
-        if (arguments.length == 1)
-        {
-            if (arguments[0] == 'count')
-            {
+        else if (arguments.length === 1) {
+            if (arguments[0] === 'count') {
                 return this.data('antecedents').length;
-            }
-            if (arguments[0] == 'last')
-            {
-                return (this.data('antecedents')[this.data('antecedents').length-1])
-            }
-            else if (typeof arguments[0] == 'number')
-            {
+            } else if (arguments[0] === 'last') {
+                return (this.data('antecedents')[this.data('antecedents').length - 1]);
+            } else if (typeof arguments[0] === 'number') {
                 return (this.data('antecedents')[arguments[0]]);
-            }
-            if (arguments[0] == 'remove')
-            {
+            } else if (arguments[0] === 'remove') {
                 this.data('antecedents', []);
             }
         }
-        else if (arguments[0] == 'add')
+        else if (arguments[0] === 'add')
         {
             var $task = this;
-            var taskToAddArg = arguments[1];
-            console.log(taskToAddArg);
-            // Need to conditionally wrap args an an array iff it isn't one.
-            //[arguments[1]].forEach(function (arrayElement) {
-            //        var antecedentTaskIdStr = arrayElement.attr('id');
-            //        var antecedentsArray = $task.data('antecedents');
-            //        if (antecedentsArray) {
-            //            antecedentsArray.push(antecedentTaskIdStr);
-            //        }
-            //        else {
-            //            antecedentsArray = [antecedentTaskIdStr];
-            //        }
-            //
-            //        $task.data('antecedents', antecedentsArray);
-            //    }
-            //);
-            [arguments[1]].forEach(
-                function ($antecedentToAdd) {
-                    //var antecedentTaskIdStr = arrayElement;
-                    var antecedentsArray = $task.data('antecedents');
-                    if (antecedentsArray) {
-                        antecedentsArray.push($antecedentToAdd);
-                    }
-                    else {
-                        antecedentsArray = [$antecedentToAdd];
-                    }
+            var $antecedentToAdd = arguments[1];
+            var antecedentsArray = $task.data('antecedents');
+            if (antecedentsArray) {
+                antecedentsArray.push($antecedentToAdd);
+            } else {
+                antecedentsArray = [$antecedentToAdd];
+            }
 
-                    $task.data('antecedents', antecedentsArray);
-                }
-            );
+            $task.data('antecedents', antecedentsArray);
         }
         else if (arguments[0] == 'remove')
         {
@@ -87,7 +58,7 @@ jQuery.fn.extend({
             // return this.data('subsequents');
             return (typeof this.data('subsequents') === 'undefined') ? [] : this.data('subsequents');
         }
-        if (arguments.length == 1)
+        else if (arguments.length == 1)
         {
             if (arguments[0] == 'count')
             {
@@ -97,11 +68,11 @@ jQuery.fn.extend({
             {
                 return this.data('subsequents')[arguments[0]];
             }
-            if (arguments[0] == 'last')
+            else if (arguments[0] == 'last')
             {
                 return (this.data('subsequents')[this.data('subsequents').length-1]);
             }
-            if (arguments[0] == 'remove')
+            else if (arguments[0] == 'remove')
             {
                 this.data('subsequents', []);
             }
@@ -109,27 +80,17 @@ jQuery.fn.extend({
         }
         else if (arguments[0] == 'add')
         {
-
-
             var $task = this;
-            console.log(arguments[1]);
 
-            [arguments[1]].forEach(
-                function ($subsequentToAdd) {
-                    //var subsequentTaskIdStr = arrayElement.attr('id');
-                    var subsequentsArray = $task.data('subsequents');
-                    if (subsequentsArray) {
-                        subsequentsArray.push($subsequentToAdd);
-                    }
-                    else {
-                        subsequentsArray = [$subsequentToAdd];
-                    }
-                    $task.data('subsequents', subsequentsArray);
-
-                }
-            );
-
-
+            var $subsequentToAdd = arguments[1]
+            var subsequentsArray = $task.data('subsequents');
+            if (subsequentsArray) {
+                subsequentsArray.push($subsequentToAdd);
+            }
+            else {
+                subsequentsArray = [$subsequentToAdd];
+            }
+            $task.data('subsequents', subsequentsArray);
         }
         else if (arguments[0] == 'remove')
         {

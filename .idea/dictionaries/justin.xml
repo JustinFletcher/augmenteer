@@ -2,6 +2,9 @@
   <dictionary name="justin">
     <words>
       <w>appendee</w>
+      <w>connectee</w>
+      <w>connectees</w>
+      <w>prependee</w>
     </words>
   </dictionary>
 </component>

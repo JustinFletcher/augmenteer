@@ -1,7 +1,7 @@
 /**
  * Created by Justin Fletcher on 12/27/2014.
  */
-
+/*global $:false*/
 
 function createTaskHolder(newTaskIdStr) {
     // This function should take a JSON object describing a task, and build a taskholder from it.
@@ -138,51 +138,49 @@ function serialPrependTask() {
 
     // First, establish local variables to reference the task to which we are appending, and the task which is to be
     // appended.
-    var $appendeeTask = $(this).closest('.task-holder');
-    var $appendedTask = createTaskHolder(Math.round(Math.random() * 1000000));
+    var $prependeeTask = $(this).closest('.task-holder');
+    var $prependedTask = createTaskHolder(Math.round(Math.random() * 1000000));
 
-    // Next, we append the new serial dependant to the DOM at the parent of the ancestor.
-    $appendeeTask.parent().append($appendedTask);
+    // Next, we append the new serial antecedent to the DOM at the parent of the ancestor.
+    $prependeeTask.parent().append($prependedTask);
 
     // Instantaneously set the position of the ancestor to the position of the descendant. This is essential for future
     // repositioning.
-    $appendedTask.css('top', $appendeeTask.position().top + "px");
-    $appendedTask.css('left', $appendeeTask.position().left + "px");
+    $prependedTask.css('top', $prependeeTask.position().top + "px");
+    $prependedTask.css('left', $prependeeTask.position().left + "px");
 
-    // Next, set the relationships for each task.
-    // Get all of the $appendeeTask antecedents, then set them as the antecedents of $appendedTask.
-    var appendedTaskAntecedentArray = $appendeeTask.antecedents();
-    console.log(appendedTaskAntecedentArray );
-    $appendedTask.antecedents('add', appendedTaskAntecedentArray);
+    set$ElementPosition($prependedTask, $prependeeTask.position().top, $prependeeTask.position().left);
 
-    // Now remove all of $appendeeTask antecedents and set the $appendedTask as the only antecedent.
-    $appendeeTask.antecedents('remove');
+    // Iterate over each of the antecedents of $prependeeTask, remove it's connection to $prependeeTask, and connect it
+    // to $prependedTask. Also, set the antecedent data for $prependedTask.
+    $prependeeTask.antecedents().forEach(function ($prependeeAntecedent) {
+        // First, get rid of the old graphical connector, and create a new one.
+        $prependeeTask.breakConnection($prependeeAntecedent);
+        $prependeeAntecedent.connectTo($prependedTask);
 
-    // Make $appendeeTask the subsequent of $appendedTask
-    $appendeeTask.antecedents('add', $appendedTask);
-    $appendedTask.subsequents('add', $appendeeTask);
+        // Then make the $prependeeAntecedent an antecedent of the $prependedTask.
+        $prependedTask.antecedents('add', $prependeeAntecedent);
 
+        // Finally, remove the $prependeeTask as a subsequent for the antecedent, and add $prependedTask.
+        $prependeeAntecedent.subsequents('remove', $prependeeTask);
+        $prependeeAntecedent.subsequents('add', $prependedTask);
+    });
 
-    // First, move the $appendee task, and all of it's children to the right by 1 unit.
+    // Make $prependedTask as the only antecedent of $prependeeTask.
+    $prependeeTask.antecedents('remove');
+    $prependeeTask.antecedents('add', $prependedTask);
 
+    // Create a graphical connector from $prependedTask to $prependeeTask
+    $prependedTask.connectTo($prependeeTask);
 
-    /////////////
+    // Make $prependeeTask the subsequent of $prependedTask
+    $prependedTask.subsequents('add', $prependeeTask);
 
-    // Place the new task a fixed distance below the lowest dependant of all it's siblings.
-    //placeSerialPrependTask($appendeeTask, $appendedTask);
+    // Move $prependeeTask, and all of it's subsequents, into place.
+    recursiveOffsetSubsequentPosition($prependeeTask, 0, 350, []);
 
-    // Now, we adjust the position of the old (ancestor, appendee) task, to center on it's children.
-    //verticallyCenter$ElementOnSubsequents(appendeeTask);
-    //recursiveVerticallyCenter$ElementOnSubsequents($appendeeTask);
-
-    // Update the position of the tasks in the task tree, relative to the appendee task.
-    //updateTaskTreePositions($appendeeTask);
-
-    // Next, create a connector between the appendee and appended.
-    createConnector($appendeeTask, $appendedTask);
-
-    // Finally, trigger append on the appendee task to
-    $appendedTask.trigger('append');
+    // Finally, trigger append on the appended task
+    $prependedTask.trigger('append');
 }
 
 function placeSerialPrependTask($appendeeTask, $appendedTask) {
@@ -261,7 +259,7 @@ function placeSerialAppendTask($appendeeTask, $appendedTask) {
     set$ElementPosition($appendedTask, topAdjustment, leftAdjustment);
 }
 
-function updateMenuPosition(){
+function updateMenuPosition() {
 
     var taskHolder = $(this);
 

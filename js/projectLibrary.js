@@ -2,6 +2,9 @@
  * Created by Justin Fletcher on 12/27/2014.
  */
 
+/*global $:false*/
+/*global jQuery:false*/
+
 function addNewProject() {
     // This function must create a new div of height and width 0px
     // The div must expand to fit it's contents automatically.
@@ -14,14 +17,14 @@ function addNewProject() {
     $('#projectField').append($newProject);
 
     // Overwrite the native jQuery append function for $newProject
-    (function($) {
+    (function ($) {
         var origAppend = $.fn.append;
         $.fn.append = function () {
             return origAppend.apply(this, arguments).trigger("append");
         };
-    })(jQuery);
+    }) (jQuery);
 
-    $newProject.bind("append", function() {
+    $newProject.bind("append", function () {
         var $projectHolder = $(this);
         var $taskHolders = $projectHolder.children('.project-task-field').children();
         var lowestTop = 0;
@@ -29,8 +32,8 @@ function addNewProject() {
             function () {
                 var $childTask = $(this);
                 var thisChildTop = $childTask.timeInvariantPositionTop();
-                thisChildTop = (thisChildTop != 'undefined')?(thisChildTop):(0);
-                lowestTop = (thisChildTop > lowestTop)?(thisChildTop):(lowestTop);
+                thisChildTop = (thisChildTop !== 'undefined') ? thisChildTop : 0;
+                lowestTop = (thisChildTop > lowestTop) ? thisChildTop : lowestTop;
             }
 
         );
@@ -41,7 +44,8 @@ function addNewProject() {
                 {
                     height : taskHolderFloor + 'px'
                 },
-                125);
+                125
+            );
         }
     });
 
@@ -65,7 +69,8 @@ jQuery.fn.extend({
         $newTaskHolder.trigger('append');
 
         // Position the new task inside it's project.
-        // This needs to become an algorithm. Find the lowest task in the project, place this new one below it, at the left.
+        // This needs to become an algorithm. Find the lowest task in the project, place this new one below it, at the
+        // left.
         var taskTop = 50;
         offset$ElementPosition($newTaskHolder, taskTop, 50);
 

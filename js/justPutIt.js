@@ -2,6 +2,7 @@
  * Created by Justin Fletcher on 12/27/2014.
  */
 
+/*global $:false*/
 
 
 // There could be constructed a search algorithm, which goes depth-first one way, until it can go another, then flips
@@ -16,24 +17,16 @@ function recursiveUpdateAntecedentsPositions($rootTask) {
     // below the next-lowest-recursive-depth root node. Based on that evaluation, an operation is performed, or not.
 
     // First, generate all antecedents of the root task
-    var rootTaskAntecedentIdArray = $rootTask.antecedents();
-    rootTaskAntecedentIdArray.forEach(
-        function ($rootTaskAntecedent) {
-
-            var rootTaskSiblingArray = $rootTaskAntecedent.subsequents();
-
-            rootTaskSiblingArray.forEach(
-                function ($rootTaskSibling) {
-
-                    // If sibling is below root, lower that sibling by 100 pixels
-                    if ($rootTask.position().top < $rootTaskSibling.position().top) {
-                        recursiveOffsetSubsequentPosition($rootTaskSibling, 100, 0, []);
-                    }
-                }
-            );
-            recursiveUpdateAntecedentsPositions($rootTaskAntecedent);
-        }
-    );
+    $rootTask.antecedents().forEach(function ($rootTaskAntecedent) {
+        var rootTaskSiblingArray = $rootTaskAntecedent.subsequents();
+        rootTaskSiblingArray.forEach(function ($rootTaskSibling) {
+            // If sibling is below root, lower that sibling by 100 pixels
+            if ($rootTask.position().top < $rootTaskSibling.position().top) {
+                recursiveOffsetSubsequentPosition($rootTaskSibling, 100, 0, []);
+            }
+        });
+        recursiveUpdateAntecedentsPositions($rootTaskAntecedent);
+    });
 }
 
 function updateTaskTreePositions($appendeeTask) {
@@ -45,18 +38,19 @@ function updateTaskTreePositions($appendeeTask) {
 
 function recursiveOffsetSubsequentPosition($rootTask, topOffset, leftOffset, adjustCompleteArray) {
 
-    //var $rootTask = $("#" + rootTaskId);
-    var rootTaskId =$rootTask.attr('id');
-    if (adjustCompleteArray.indexOf(rootTaskId) === -1) {
+    // If the explored set (adjustCompleteArray) doesn't contain the $rootNode, then adjust the nodes position and add
+    if ($.inArray($rootTask, adjustCompleteArray) === -1) {
         offset$ElementPosition($rootTask, topOffset, leftOffset);
-        adjustCompleteArray.push(rootTaskId);
+        adjustCompleteArray.push($rootTask);
     }
 
+    // Generate the frontier, which consists of subsequents.
     var rootTaskSubsequentsArray = $rootTask.subsequents();
 
+    // Iterate over each of the frontier members, and recursively call this function, thereby implementing a recursive,
+    // one-way, depth-first search of the subsequent space.
     rootTaskSubsequentsArray.forEach(
         function ($subsequentTask) {
-            // Reminder: subsequentTaskId, in this case, is just the contents of this iterations arrayElement.
             recursiveOffsetSubsequentPosition($subsequentTask, topOffset, leftOffset, adjustCompleteArray);
         }
     );
@@ -133,7 +127,7 @@ function recursiveVerticallyCenter$ElementOnSubsequents($rootTask) {
     rootTaskAntecedentsArray.forEach(
         function($antecedentTask){
             //var $antecedentTask = $('#' + arrayElement); // Can eliminate for speed if needed.
-            recursiveVerticallyCenter$ElementOnSubsequents( $antecedentTask ) ;
+            recursiveVerticallyCenter$ElementOnSubsequents($antecedentTask) ;
         }
     );
 }
@@ -201,7 +195,7 @@ function offset$ElementPosition($element, top, left){
         $element.trigger('task-moved');
         console.log("offset timer running");
     }, 1);
-    setTimeout(function () {clearInterval(offsetTimer); }, 250);
+    setTimeout(function () {clearInterval(offsetTimer); }, 500);
 
     $element.animate(
         {
